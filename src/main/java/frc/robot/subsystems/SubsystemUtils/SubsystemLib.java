@@ -2,6 +2,7 @@ package frc.robot.subsystems.SubsystemUtils;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -11,13 +12,10 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.PositionVoltage;
-// import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-// import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.function.DoubleSupplier;
@@ -25,16 +23,16 @@ import java.util.function.DoubleSupplier;
 public abstract class SubsystemLib extends SubsystemBase{
     protected boolean attached = false;
     protected TalonFX motor;
-    public Config config;  //Creates the config object for every subsystem
+    public Config config;  
 
     public SubsystemLib(boolean attached) {
         this.attached = attached;
-        this.config = setConfig(); // Calls the setConfig function so that the configuration can be set
+        this.config = setConfig(); 
     }
 
-    protected abstract Config setConfig(); // abstract method that forces all subclasses to define config
+    protected abstract Config setConfig(); 
 
-    protected void setConfig(Config config) { //The actual function that sets the config
+    protected void setConfig(Config config) { 
         this.config = config;
     };
 
@@ -44,17 +42,14 @@ public abstract class SubsystemLib extends SubsystemBase{
         }
     }
 
-    /** Here is a super simple tare motor function. Maybe run this at the start of every match*/
     public void tareMotor() {
         if (attached) {
             setMotorPosition(0);
         }
     }
 
-    /**
-     * Sets the mechanism position of the motor
-     *
-     * @param position rotations
+    /**     
+     * @param position 
      */
     public void setMotorPosition(double position) {
         if (attached) {
@@ -62,15 +57,11 @@ public abstract class SubsystemLib extends SubsystemBase{
         }
     }
 
-    public double getPivotMotorPosition(){
-        return motor.getPosition().getValueAsDouble();
-    }
-
 
     /**
      * velocity control
      *
-     * @param velocity rotations per second i think
+     * @param velocity
      */
     public void setVelocity(double velocity) {
         if (attached) {
@@ -83,7 +74,7 @@ public abstract class SubsystemLib extends SubsystemBase{
     /**
      * voltage control
      *
-     * @param voltage volts. Duh.
+     * @param voltage
      */
     public void setVoltage(double voltage) {
         if (attached) {
@@ -93,11 +84,16 @@ public abstract class SubsystemLib extends SubsystemBase{
         }
     }
 
-    public void SetPositionVoltage(double position){
-        // System.out.println(position);
-        // System.out.println(attached);
+    /**
+     * 
+     * @param position
+     * @param slot
+     */
+
+    public void SetPositionVoltage(double position, int slot){
+    
         if (attached) {
-            PositionVoltage output = config.positionVoltage.withPosition(position);
+            PositionVoltage output = config.positionVoltage.withSlot(slot).withPosition(position);
             motor.setControl(output);
         }
     }
@@ -110,7 +106,6 @@ public abstract class SubsystemLib extends SubsystemBase{
         }
     }
 
-    /*This is more spectrum 3847 Motion Magic. I did not write all of this. But i did implement their Param stuff.*/
 
     /**
      * Closed-loop Position Motion Magic with torque control (requires Pro)
@@ -182,6 +177,15 @@ public abstract class SubsystemLib extends SubsystemBase{
         }
     }
 
+    /**
+     * @param percent
+     */
+    public void setDutyCycleOut(double percent, int slot){
+        if(attached){
+            DutyCycleOut output = config.dutyCycleOut.withOutput(percent);
+            motor.setControl(output);
+        }
+    }
     
 
 
@@ -200,6 +204,7 @@ public abstract class SubsystemLib extends SubsystemBase{
         public VelocityVoltage velocityControl = new VelocityVoltage(0);
         public VelocityTorqueCurrentFOC velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0);
         public PositionVoltage positionVoltage = new PositionVoltage(0);
+        public DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
         
         
 
@@ -251,15 +256,12 @@ public abstract class SubsystemLib extends SubsystemBase{
 
 
 
-        /*Brady- I sourced most of these motion magic configs from Spectrum 3847 */
        
-        // Configure optional motion magic velocity parameters
         public void configMotionMagicVelocity(double acceleration, double feedforward) {
             mmVelocityFOC = mmVelocityFOC.withAcceleration(acceleration).withFeedForward(feedforward);
             mmVelocityVoltage = mmVelocityVoltage.withAcceleration(acceleration).withFeedForward(feedforward);
         }
 
-        // Configure optional motion magic position parameters
         public void configMotionMagicPosition(double feedforward) {
             mmPositionFOC = mmPositionFOC.withFeedForward(feedforward);
             mmPositionVoltage = mmPositionVoltage.withFeedForward(feedforward);
@@ -276,49 +278,110 @@ public abstract class SubsystemLib extends SubsystemBase{
             talonConfig.Feedback.SensorToMechanismRatio = gearRatio;
         }
 
-        public double getGearRatio() {     //Outputs gear ratio. Easy.
+        public double getGearRatio() {
             return talonConfig.Feedback.SensorToMechanismRatio;
         }
 
-        public void configNeutralBrakeMode(boolean isInBrake) { //If we have a mechanims that can not hold itself set the neutral mode to Brake(true)
+        public void configNeutralBrakeMode(boolean isInBrake) { 
             if (isInBrake) {
                 talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
             } else {
                 talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
             }
         }
-
+        
+        public void configVirtualLimitSwitch(double fwdLim, double revLim, boolean enableFwd, boolean enableRev) {
+            talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = fwdLim;
+            talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = revLim;
+            talonConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = enableFwd;
+            talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = enableRev;
+        }
         /**
          * Defaults to slot 0  //Some other teams have a complicated slot configuration but I just have this simple default until I learn more 
          *
-         * @param kP //Params are unnecessary, they are just used for navigation and readability here. 
+         * @param kP 
          * @param kI
          * @param kD
          */
        
-        public void configPIDGains(double kP, double kI, double kD) { //Super simple functions to set the PID gains. 
-            configPID(kP, kI, kD);
+        public void configSlot0PIDGains(double kP, double kI, double kD) { //Super simple functions to set the PID gains. 
+            configSlot0PID(kP, kI, kD);
         }
 
-        public void configForwardGains(double kV, double kA, double kS, double kG){
-            configGains(kV, kA, kS, kG);
+        /**
+         * 
+         * @param kP
+         * @param kI
+         * @param kD
+         */
+
+        public void configSlot1PIDGains(double kP, double kI, double kD) { //Super simple functions to set the PID gains. 
+            configSlot1PID(kP, kI, kD);
         }
 
-        private void configPID(double kP, double kI, double kD) {
+        /**
+         * 
+         * @param kP
+         * @param kI
+         * @param kD
+         */
+        public void configSlot2PIDGains(double kP, double kI, double kD) { //Super simple functions to set the PID gains. 
+            configSlot2PID(kP, kI, kD);
+        }
+
+
+        
+        private void configSlot0PID(double kP, double kI, double kD) {
             talonConfig.Slot0.kP = kP;
             talonConfig.Slot0.kI = kI;
             talonConfig.Slot0.kD = kD;
         }
-
-        public void configGains(double  kV, double kA, double kS, double kG) {
+        
+        private void configSlot1PID(double kP, double kI, double kD) {
+            talonConfig.Slot1.kP = kP;
+            talonConfig.Slot1.kI = kI;
+            talonConfig.Slot1.kD = kD;
+        }
+        
+        private void configSlot2PID(double kP, double kI, double kD) {
+            talonConfig.Slot2.kP = kP;
+            talonConfig.Slot2.kI = kI;
+            talonConfig.Slot2.kD = kD;
+        }
+        
+        
+        public void configslot0ForwardGains(double  kV, double kA, double kS, double kG) {
             talonConfig.Slot0.kV = kV;
             talonConfig.Slot0.kA = kA;
             talonConfig.Slot0.kS = kS;
             talonConfig.Slot0.kG = kG;
-
-
-
         }
+        
+        public void configslot1ForwardGains(double  kV, double kA, double kS, double kG) {
+            talonConfig.Slot1.kV = kV;
+            talonConfig.Slot1.kA = kA;
+            talonConfig.Slot1.kS = kS;
+            talonConfig.Slot1.kG = kG;
+        }
+    
+        public void configslot2ForwardGains(double  kV, double kA, double kS, double kG) {
+            talonConfig.Slot2.kV = kV;
+            talonConfig.Slot2.kA = kA;
+            talonConfig.Slot2.kS = kS;
+            talonConfig.Slot2.kG = kG;
+        }
+
+
+        public void configSlot0ForwardGains(double kV, double kA, double kS, double kG){
+            configslot0ForwardGains(kV, kA, kS, kG);
+        }
+        public void configSlot1ForwardGains(double kV, double kA, double kS, double kG){
+            configslot1ForwardGains(kV, kA, kS, kG);
+        }
+        public void configSlot2ForwardGains(double kV, double kA, double kS, double kG){
+            configslot2ForwardGains(kV, kA, kS, kG);
+        }
+        
     }
 }
 

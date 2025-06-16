@@ -14,10 +14,14 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.CommandTurretAlign;
+import frc.robot.commands.turretToPosSlot0;
+import frc.robot.commands.turretToPosSlot1;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TurretTestSubsystem;
@@ -45,9 +49,12 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    public final Trigger turretToggler = new Trigger(() -> {return Constants.VisionConstants.doTargetTracking;});
+
 
     public RobotContainer() {
         configureBindings();
+        turretToggler.whileTrue(new CommandTurretAlign(turret));
     }
 
     private void configureBindings() {
@@ -85,7 +92,21 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
 
-        joystick.a().onTrue(CommandTagAlign(turret));
+        joystick.a().onTrue(new InstantCommand(() -> {
+            Constants.VisionConstants.doTargetTracking = !Constants.VisionConstants.doTargetTracking;
+        }));
+        
+      
+
+
+        joystick.b().onTrue(new turretToPosSlot0(turret, 0));
+
+        // joystick.x().onTrue(new turretToPosSlot0(turret, 40));
+
+        // joystick.b().onTrue(new turretToPosSlot1(turret, 40));
+
+        // joystick.a().onTrue(new turretToPosSlot0(turret, 0));
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

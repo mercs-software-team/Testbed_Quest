@@ -19,21 +19,21 @@ public class Constants {
 
         public static final boolean attached = true;
 
-        public static final double kP = 3; 
+        public static final double kP0 = 0.1; 
+        public static final double kP1 = 10; 
+
         public static final double kS = 0; 
         public static final double kV = 0; 
-
-
-
         public static final double voltageOut = 0;
-      
-
         public static final double tol = 0.4;
+        public static final double rightLimit = 10;
+        public static final double leftLimit = -10;
+
     }
 
     public static final class turretMMConstants{
-        public static final double acceleration = 3;
-        public static final double speed = 3;
+        public static final double acceleration = 10;
+        public static final double speed = 10;
         public static final double jerk = 0;
 
     }
@@ -43,6 +43,11 @@ public class Constants {
         public static final String limelightFrontName = "limelight-front";
         public static final Vector<N3> visionStdDevs = VecBuilder.fill(.5,.5,9999999);
         public static PoseEstimate bestLimelightPose;
+        public static boolean doTargetTracking = false;
+    }
+
+    public static boolean isWithinTol(double targetPose, double currentPose, double tolerance) {
+        return (Math.abs(targetPose - currentPose) <= tolerance);
     }
     
 }
