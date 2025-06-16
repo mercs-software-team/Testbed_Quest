@@ -36,13 +36,6 @@ public class turretToPosSlot0 extends Command {
 
     @Override 
     public boolean isFinished() {
-        
-        // This is where you put a statment that will determine wether a boolean is true or false
-        // This is checked after an execute loop and if the return comes out true the execute loop will stop and end will happen
-        // In this example, it will just instantly come out as true and stop the command as soon as it's called.
-        // System.out.println("isf");
-        // System.out.println(Constants.isWithinTol(pos, m_testIntakePivot.GetPosition(), Constants.TestIntakePivotConstants.tol));
-        // return Constants.isWithinTol(pos, m_testIntakePivot.GetPosition(), Constants.TestIntakePivotConstants.tol);
         return true;
     }
 
