@@ -7,16 +7,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
-import frc.robot.subsystems.TurretTestSubsystem;
+import frc.robot.subsystems.Mechanisms.Turret;
 
 public class CommandTurretAlign extends Command {
 
-    private TurretTestSubsystem turret;
+    private Turret turret;
 
 
     private final PIDController thetaController = new PIDController(0.3, 0.01, 0.01);
 
-    public CommandTurretAlign(TurretTestSubsystem m_turret) {
+    public CommandTurretAlign(Turret m_turret) {
         this.turret = m_turret;
 
         thetaController.setTolerance(Units.degreesToRadians(1));
